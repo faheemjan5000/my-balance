@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @Data
 public class CurrentBalance {
 
-    private double usd;
-    private double euro;
+    private Double usd;
+    private Double euro;
 }
