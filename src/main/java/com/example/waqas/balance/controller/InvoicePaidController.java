@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.ResourceBundle;
 
 @RestController
 @RequestMapping("/paidInvoice")
@@ -66,7 +65,7 @@ public class InvoicePaidController {
     }
 
     @DeleteMapping("/resetPAIDInvoices")
-    public ResponseEntity<String> resePaidInvoices(){
+    public ResponseEntity<String> resetPaidInvoices(){
          invoicePaidService.removeAllPaidInvoices();
         //update the csv file for invoices in USD and in EURO
         Utilities.writeOrUpdateAllPaidInvoicesFile(invoicePaidService.getAllPaidInvoices());

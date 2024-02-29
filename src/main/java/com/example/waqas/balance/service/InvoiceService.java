@@ -45,7 +45,7 @@ public class InvoiceService {
         return invoiceSaved;
     }
 
-
+  //The removed invoice is added to the paid invoices list(database,file)
     public void removeInvoiceEuroById(Integer invoiceEuroID) throws InvoiceNotFoundException {
         //we remove an invoice when it is paid to wiki so we add it to another file invoicesPaid file
         Optional<InvoiceEuro> optionalInvoiceEuro = invoiceEuroRepository.findById(invoiceEuroID);
@@ -141,7 +141,7 @@ public class InvoiceService {
         InvoicePaid invoicePaid = new InvoicePaid();
         invoicePaid.setId(invoiceUsd.getId());
         invoicePaid.setDate(invoiceUsd.getDate());
-        invoicePaid.setInvoicerName(invoicePaid.getInvoicerName());
+        invoicePaid.setInvoicerName(invoiceUsd.getInvoicerName());
         invoicePaid.setAmount(invoiceUsd.getUsd());
         invoicePaid.setCurrency("USD");
 
