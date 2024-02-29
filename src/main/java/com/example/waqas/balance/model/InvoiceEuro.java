@@ -17,6 +17,8 @@ import lombok.NoArgsConstructor;
 public class InvoiceEuro {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Integer id;
    //@NotBlank(message = "plz enter balance!")
     private Double euro;
     private String invoicerName;

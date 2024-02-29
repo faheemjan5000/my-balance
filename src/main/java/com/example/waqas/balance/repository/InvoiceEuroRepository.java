@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface InvoiceEuroRepository extends JpaRepository<InvoiceEuro,Double>{
+public interface InvoiceEuroRepository extends JpaRepository<InvoiceEuro,Integer>{
 }

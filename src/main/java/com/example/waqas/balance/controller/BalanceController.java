@@ -8,7 +8,6 @@ import com.example.waqas.balance.service.InvoiceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,19 +31,19 @@ public class BalanceController {
 
     @GetMapping("/onlyUSDBalance")
     public ResponseEntity<Double> getUsdBalanceOnly(){
-        return ResponseEntity.ok(invoiceService.getAllUsdBalance());
+        return ResponseEntity.ok(invoiceService.getUsdBalanceOnly());
 
     }
 
     @GetMapping("/onlyEUROBalance")
     public ResponseEntity<Double> getEuroBalanceOnly(){
-        return ResponseEntity.ok(invoiceService.getAllEuroBalance());
+        return ResponseEntity.ok(invoiceService.getEuroBalanceOnly());
     }
 
-    @DeleteMapping("/deleteUSDInvoice")
-    public ResponseEntity<String> removeInvoiceUSD(Double invoiceUsdId){
+    @DeleteMapping("/deleteUSDInvoice/{id}")
+    public ResponseEntity<String> removeInvoiceUSD(@PathVariable("id") Integer invoiceUsdId){
         try{
-            invoiceService.removeInvoiceUsd(invoiceUsdId);
+            invoiceService.removeInvoiceUsdById(invoiceUsdId);
             return ResponseEntity.ok("invoice in usd deleted successfully!");
         } catch (InvoiceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
@@ -53,10 +52,10 @@ public class BalanceController {
         }
     }
 
-    @DeleteMapping("/deleteEUROInvoice")
-    public ResponseEntity<String> removeInvoiceEURO(Double invoiceEuroId){
+    @DeleteMapping("/deleteEUROInvoice/{id}")
+    public ResponseEntity<String> removeInvoiceEURO(@PathVariable("id") Integer invoiceEuroId){
         try{
-            invoiceService.removeInvoiceEuro(invoiceEuroId);
+            invoiceService.removeInvoiceEuroById(invoiceEuroId);
             return ResponseEntity.ok("invoice in euro deleted successfully!");
         } catch (InvoiceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
@@ -66,9 +65,9 @@ public class BalanceController {
     }
 
     @GetMapping("/totalOfAllCurrenciesInUSD/{currentEuroRate}")
-    public ResponseEntity<Double> getSumOfAllAmountInUSD(@PathVariable("currentEuroRate") double currentEuroToDollarValue){
+    public ResponseEntity<Double> getSumOfAllCurrenciesInUSD(@PathVariable("currentEuroRate") Double currentEuroToDollarPrice){
         //this API returns the sum of all the currencies in USD
-        return ResponseEntity.ok(invoiceService.getAllBalanceInUsd(currentEuroToDollarValue));
+        return ResponseEntity.ok(invoiceService.getSumOfAllCurrenciesInUsd(currentEuroToDollarPrice));
     }
 
     @GetMapping("/bothCurrenciesData")

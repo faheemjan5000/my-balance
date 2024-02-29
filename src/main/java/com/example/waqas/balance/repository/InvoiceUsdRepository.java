@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface InvoiceUsdRepository extends JpaRepository<InvoiceUsd,Double> {
+public interface InvoiceUsdRepository extends JpaRepository<InvoiceUsd,Integer> {
 }
