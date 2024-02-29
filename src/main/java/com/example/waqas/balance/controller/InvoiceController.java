@@ -5,6 +5,7 @@ import com.example.waqas.balance.model.CurrentBalance;
 import com.example.waqas.balance.model.InvoiceEuro;
 import com.example.waqas.balance.model.InvoiceUsd;
 import com.example.waqas.balance.service.InvoiceService;
+import com.example.waqas.balance.utility.Utilities;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,8 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/balance")
-public class BalanceController {
+@RequestMapping("/invoice")
+public class InvoiceController {
 
     @Autowired
     private InvoiceService invoiceService;
@@ -83,5 +84,21 @@ public class BalanceController {
     @GetMapping("/allUsdInvoices")
     public ResponseEntity<List<InvoiceUsd>> getAllUsdInvoices(){
         return ResponseEntity.ok(invoiceService.getAllUsdInvoices());
+    }
+
+    @DeleteMapping("/resetUSDInvoices")
+    public ResponseEntity<String> resetUsdInvoices(){
+        invoiceService.deleteAllUsdInvoices();
+        //update the csv file for invoices in USD and in EURO
+        Utilities.writeAllInvoicesInFile(invoiceService.getAllUsdInvoices(),invoiceService.getAllEuroInvoices());
+        return ResponseEntity.ok("deleted all USD invoices successfully");
+    }
+
+    @DeleteMapping("/resetEUROInvoices")
+    public ResponseEntity<String> resetEuroInvoices(){
+        invoiceService.deleteAllEuroInvoices();
+        //update the csv file for invoices in USD and in EURO
+        Utilities.writeAllInvoicesInFile(invoiceService.getAllUsdInvoices(),invoiceService.getAllEuroInvoices());
+        return ResponseEntity.ok("deleted all EURO invoices successfully");
     }
 }

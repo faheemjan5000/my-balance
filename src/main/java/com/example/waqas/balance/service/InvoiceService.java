@@ -3,14 +3,15 @@ package com.example.waqas.balance.service;
 import com.example.waqas.balance.exceptions.InvoiceNotFoundException;
 import com.example.waqas.balance.model.CurrentBalance;
 import com.example.waqas.balance.model.InvoiceEuro;
+import com.example.waqas.balance.model.InvoicePaid;
 import com.example.waqas.balance.model.InvoiceUsd;
 import com.example.waqas.balance.repository.InvoiceEuroRepository;
+import com.example.waqas.balance.repository.InvoicePaidRepository;
 import com.example.waqas.balance.repository.InvoiceUsdRepository;
+import com.example.waqas.balance.utility.Utilities;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,34 +24,55 @@ public class InvoiceService {
     @Autowired
     private InvoiceEuroRepository invoiceEuroRepository;
 
+    @Autowired
+    private InvoicePaidRepository invoicePaidRepository;
+
+    @Autowired
+    private InvoicePaidService invoicePaidService;
+
+
+
 
     public InvoiceEuro addInvoiceEuro(InvoiceEuro invoiceEuro){
         InvoiceEuro invoiceSaved = invoiceEuroRepository.save(invoiceEuro);
-        this.writeAllInvoicesInFile();
+        Utilities.writeAllInvoicesInFile(this.getAllUsdInvoices(),this.getAllEuroInvoices());
         return invoiceSaved;
     }
 
     public InvoiceUsd addInvoiceUsd(InvoiceUsd invoiceUsd){
           InvoiceUsd invoiceSaved = invoiceUsdRepository.save(invoiceUsd);
-          this.writeAllInvoicesInFile();
+          Utilities.writeAllInvoicesInFile(this.getAllUsdInvoices(),this.getAllEuroInvoices());
         return invoiceSaved;
     }
 
 
     public void removeInvoiceEuroById(Integer invoiceEuroID) throws InvoiceNotFoundException {
+        //we remove an invoice when it is paid to wiki so we add it to another file invoicesPaid file
         Optional<InvoiceEuro> optionalInvoiceEuro = invoiceEuroRepository.findById(invoiceEuroID);
         if(optionalInvoiceEuro.isPresent()){
+            InvoicePaid invoicePaid = this.convertInvoiceEuroToInvoicePaid(optionalInvoiceEuro.get());
             invoiceEuroRepository.deleteById(invoiceEuroID);
-            this.writeAllInvoicesInFile();
+            Utilities.writeAllInvoicesInFile(this.getAllUsdInvoices(),this.getAllEuroInvoices());
+            //write the removed(paid) invoice to the paid invoice repository
+            invoicePaidRepository.save(invoicePaid);
+            //this.writeAllPaidInvoicesInFile();
+            Utilities.writeOrUpdateAllPaidInvoicesFile(invoicePaidService.getAllPaidInvoices());
         }else{
             throw new InvoiceNotFoundException("This invoice is not present!");
         }
     }
+
+
     public void removeInvoiceUsdById(Integer invoiceUsdID) throws InvoiceNotFoundException {
         Optional<InvoiceUsd> optionalInvoiceUsd = invoiceUsdRepository.findById(invoiceUsdID);
         if(optionalInvoiceUsd.isPresent()){
+            InvoicePaid invoicePaid = this.convertInvoiceUsdToInvoicePaid(optionalInvoiceUsd.get());
             invoiceUsdRepository.deleteById(invoiceUsdID);
-            this.writeAllInvoicesInFile();
+            Utilities.writeAllInvoicesInFile(this.getAllUsdInvoices(),this.getAllEuroInvoices());
+            //write the removed(paid) invoice to the invoice paid repository
+            invoicePaidRepository.save(invoicePaid);
+            //this.writeAllPaidInvoicesInFile();
+            Utilities.writeOrUpdateAllPaidInvoicesFile(invoicePaidService.getAllPaidInvoices());
         }else{
             throw new InvoiceNotFoundException("This invoice is not present!");
         }
@@ -89,8 +111,7 @@ public class InvoiceService {
        Double usdAmount =  this.getUsdBalanceOnly();
        double convertedEuroToDollars = euroAmount * currentEuroToDollarPrice;
 
-       double sumOfAllCurrenciesInUSD = convertedEuroToDollars + usdAmount;
-      return sumOfAllCurrenciesInUSD;
+       return (convertedEuroToDollars + usdAmount);
    }
 
     public CurrentBalance getAllCurrenciesBalance(){
@@ -103,45 +124,37 @@ public class InvoiceService {
         return currentBalance;
     }
 
-    public void writeAllInvoicesInFile(){
-        List<InvoiceUsd> usdInvoicesList = this.getAllUsdInvoices();
-        List<InvoiceEuro> euroInvoicesList = this.getAllEuroInvoices();
-        String fileName = "invoices.csv";
-        try (FileWriter writer = new FileWriter(fileName)) {
-            // Write header
-            writer.append("ID,USD,NAME,DATE\n");
 
-            // Write InvoiceUsd data
-            for (InvoiceUsd invoiceUsd : usdInvoicesList) {
-                writer.append(String.valueOf(invoiceUsd.getId()));
-                writer.append(",");
-                writer.append(String.valueOf(invoiceUsd.getUsd()));
-                writer.append(",");
-                writer.append(invoiceUsd.getInvoicerName());
-                writer.append(",");
-                writer.append(invoiceUsd.getDate());
-                writer.append("\n");
-                writer.append("\n");
 
-            }
-            writer.append("\n");
-            writer.append("####,####,####,####\n");
-            writer.append("ID,EURO,NAME,DATE\n");
-            // Write InvoiceEuro data
-            for (InvoiceEuro invoiceEuro : euroInvoicesList) {
-                writer.append(String.valueOf(invoiceEuro.getId()));
-                writer.append(",");
-                writer.append(String.valueOf(invoiceEuro.getEuro()));
-                writer.append(",");
-                writer.append(invoiceEuro.getInvoicerName());
-                writer.append(",");
-                writer.append(invoiceEuro.getDate());
-                writer.append("\n");
-            }
 
-            System.out.println("Invoices has been written to " + fileName);
-        } catch (IOException e) {
-            System.err.println("Error occurred while writing CSV: " + e.getMessage());
-        }
+    private InvoicePaid convertInvoiceEuroToInvoicePaid(InvoiceEuro invoiceEuro) {
+        InvoicePaid invoicePaid = new InvoicePaid();
+        invoicePaid.setId(invoiceEuro.getId());
+        invoicePaid.setDate(invoiceEuro.getDate());
+        invoicePaid.setInvoicerName(invoiceEuro.getInvoicerName());
+        invoicePaid.setAmount(invoiceEuro.getEuro());
+        invoicePaid.setCurrency("EURO");
+
+        return invoicePaid;
     }
+    private InvoicePaid convertInvoiceUsdToInvoicePaid(InvoiceUsd invoiceUsd) {
+        InvoicePaid invoicePaid = new InvoicePaid();
+        invoicePaid.setId(invoiceUsd.getId());
+        invoicePaid.setDate(invoiceUsd.getDate());
+        invoicePaid.setInvoicerName(invoicePaid.getInvoicerName());
+        invoicePaid.setAmount(invoiceUsd.getUsd());
+        invoicePaid.setCurrency("USD");
+
+        return invoicePaid;
+    }
+
+    public void deleteAllUsdInvoices(){
+        invoiceUsdRepository.deleteAll();
+    }
+
+
+    public void deleteAllEuroInvoices(){
+        invoiceEuroRepository.deleteAll();
+    }
+
 }
