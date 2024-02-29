@@ -50,4 +50,8 @@ public class InvoicePaidService {
     public List<InvoicePaid> getAllPaidInvoices(){
         return invoicePaidRepository.findAll();
     }
+
+    public void removeAllPaidInvoices(){
+        invoicePaidRepository.deleteAll();
+    }
 }

@@ -5,6 +5,7 @@ import com.example.waqas.balance.exceptions.InvoicePaidAddingException;
 import com.example.waqas.balance.model.InvoicePaid;
 import com.example.waqas.balance.repository.InvoicePaidRepository;
 import com.example.waqas.balance.service.InvoicePaidService;
+import com.example.waqas.balance.utility.Utilities;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -62,6 +63,14 @@ public class InvoicePaidController {
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error occured deleting Paid invoice");
         }
+    }
+
+    @DeleteMapping("/resetPAIDInvoices")
+    public ResponseEntity<String> resePaidInvoices(){
+         invoicePaidService.removeAllPaidInvoices();
+        //update the csv file for invoices in USD and in EURO
+        Utilities.writeOrUpdateAllPaidInvoicesFile(invoicePaidService.getAllPaidInvoices());
+        return ResponseEntity.ok("deleted all PAID invoices successfully");
     }
 
 
