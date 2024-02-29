@@ -122,8 +122,10 @@ public class InvoiceService {
                 writer.append(invoiceUsd.getDate());
                 writer.append("\n");
                 writer.append("\n");
-                writer.append("\n");
+
             }
+            writer.append("\n");
+            writer.append("####,####,####,####\n");
             writer.append("ID,EURO,NAME,DATE\n");
             // Write InvoiceEuro data
             for (InvoiceEuro invoiceEuro : euroInvoicesList) {
