@@ -30,7 +30,6 @@ public class Utilities {
                 writer.append(invoice.getDate());                  //DATE
                 writer.append(",");
                 writer.append(invoice.getPaid());                  //PAID
-                writer.append(",");
                 writer.append("\n");
 
             }
