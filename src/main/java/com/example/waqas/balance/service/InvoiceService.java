@@ -4,6 +4,7 @@ import com.example.waqas.balance.dto.InvoiceDTO;
 import com.example.waqas.balance.exceptions.InvoiceNotFoundException;
 import com.example.waqas.balance.exceptions.WrongStatusException;
 import com.example.waqas.balance.mapper.InvoiceMapper;
+import com.example.waqas.balance.model.AllCurrencies;
 import com.example.waqas.balance.model.Invoice;
 import com.example.waqas.balance.repository.InvoiceRepository;
 import com.example.waqas.balance.utility.PaymentStatus;
@@ -13,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class InvoiceService {
@@ -23,9 +23,7 @@ public class InvoiceService {
 
     public Invoice addInvoice(InvoiceDTO invoiceDTO){
         Invoice invoice = InvoiceMapper.convertInvoiceDTOintoInvoice(invoiceDTO);
-        Invoice invoiceSaved = invoiceRepository.save(invoice);
-        Utilities.writeOrUpdateInvoicesFile(this.getAllInvoices());
-        return invoiceSaved;
+        return invoiceRepository.save(invoice);
     }
 
     public Invoice getInvoiceById(Integer id) throws InvoiceNotFoundException {
@@ -51,7 +49,6 @@ public class InvoiceService {
     public void removeInvoiceById(Integer id) throws InvoiceNotFoundException {
         if(invoiceRepository.findById(id).isPresent()){
             invoiceRepository.deleteById(id);
-            Utilities.writeOrUpdateInvoicesFile(this.getAllPaidInvoices());
         }
         else {
             throw new InvoiceNotFoundException("Invoice does not exist!");
@@ -60,7 +57,6 @@ public class InvoiceService {
     public void removeAllInvoices(){
 
         invoiceRepository.deleteAll();
-        Utilities.writeOrUpdateInvoicesFile(this.getAllPaidInvoices());
     }
 
     public Invoice changeInvoicePaymentStatus(Integer invoiceId, String status) throws WrongStatusException, InvoiceNotFoundException {
@@ -70,7 +66,6 @@ public class InvoiceService {
                invoiceRetrieved = this.getInvoiceById(invoiceId);
                invoiceRetrieved.setPaid(status);
                invoiceRepository.save(invoiceRetrieved);
-               Utilities.writeOrUpdateInvoicesFile(this.getAllInvoices());
                return invoiceRetrieved;
            } catch (InvoiceNotFoundException e) {
                throw new InvoiceNotFoundException(e.getMessage());
@@ -79,5 +74,30 @@ public class InvoiceService {
         else{
             throw new WrongStatusException("wrong status!");
        }
+    }
+
+    public AllCurrencies getSumOfAllCurrencies(){
+        List<Invoice> allInvoices = this.getAllInvoices();
+        double sumUsd = 0.00;
+        double sumEuro = 0.00;
+        List<Invoice> usdInvoices = allInvoices.stream()
+                .filter(invoice -> invoice.getCurrency().equalsIgnoreCase("USD"))
+                .toList();
+        List<Invoice> euroInvoices = allInvoices.stream()
+                .filter(invoice -> invoice.getCurrency().equalsIgnoreCase("EURO"))
+                .toList();
+         for(Invoice usdInvoice : usdInvoices){
+             sumUsd = sumUsd + usdInvoice.getAmount();
+         }
+
+        for(Invoice euroInvoice : euroInvoices){
+            sumEuro = sumEuro + euroInvoice.getAmount();
+        }
+
+        AllCurrencies allCurrencies = new AllCurrencies();
+        allCurrencies.setEuro(sumEuro);
+        allCurrencies.setUsd(sumUsd);
+
+        return allCurrencies;
     }
 }

@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class CurrentBalance {
+public class AllCurrencies {
 
     private Double usd;
     private Double euro;

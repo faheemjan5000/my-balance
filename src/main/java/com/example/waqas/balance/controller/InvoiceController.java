@@ -3,8 +3,10 @@ package com.example.waqas.balance.controller;
 import com.example.waqas.balance.dto.InvoiceDTO;
 import com.example.waqas.balance.exceptions.InvoiceNotFoundException;
 import com.example.waqas.balance.exceptions.WrongStatusException;
+import com.example.waqas.balance.model.AllCurrencies;
 import com.example.waqas.balance.model.Invoice;
 import com.example.waqas.balance.service.InvoiceService;
+import com.example.waqas.balance.utility.Utilities;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -90,6 +92,17 @@ public class InvoiceController {
                     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
                  }
 
+    }
+
+    @GetMapping("/allCurrencies")
+    public ResponseEntity<AllCurrencies> getAllCurrencies(){
+        return ResponseEntity.ok(invoiceService.getSumOfAllCurrencies());
+    }
+
+    @GetMapping("/write")
+    public ResponseEntity<String> writeInvoicesIntoCSV(){
+        Utilities.writeOrUpdateInvoicesFile(invoiceService.getAllInvoices() ,invoiceService.getSumOfAllCurrencies());
+        return ResponseEntity.status(HttpStatus.CREATED).body("Invoices written to the file");
     }
 
 }

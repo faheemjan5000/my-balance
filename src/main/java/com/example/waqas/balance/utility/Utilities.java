@@ -1,5 +1,6 @@
 package com.example.waqas.balance.utility;
 
+import com.example.waqas.balance.model.AllCurrencies;
 import com.example.waqas.balance.model.Invoice;
 
 import java.io.FileWriter;
@@ -9,7 +10,7 @@ import java.util.List;
 public class Utilities {
 
 
-    public static void writeOrUpdateInvoicesFile(List<Invoice> invoicesList){
+    public static void writeOrUpdateInvoicesFile(List<Invoice> invoicesList, AllCurrencies sumOfAllCurrencies){
         // List<InvoicePaid> paidInvoicesList = invoicePaidService.getAllPaidInvoices();
         String fileName = "finalInvoices.csv";
         try (FileWriter writer = new FileWriter(fileName)) {
@@ -27,11 +28,23 @@ public class Utilities {
                 writer.append(invoice.getCurrency());              //CURRENCY
                 writer.append(",");
                 writer.append(invoice.getDate());                  //DATE
-
-                writer.append("  "+invoice.getPaid());                  //PAID
+                writer.append(",");
+                writer.append(invoice.getPaid());                  //PAID
+                writer.append(",");
                 writer.append("\n");
 
             }
+            writer.append("\n");
+            writer.append("\n");
+            writer.append("\n");
+
+            writer.append("BALANCE");
+            writer.append("\n");
+            writer.append("USD,EURO\n");
+            writer.append(String.valueOf(sumOfAllCurrencies.getUsd()));
+            writer.append(",");
+            writer.append(String.valueOf(sumOfAllCurrencies.getEuro()));
+            writer.append("\n");
 
             System.out.println("Invoices has been written to " + fileName);
         } catch (IOException e) {
