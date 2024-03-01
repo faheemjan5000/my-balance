@@ -1,11 +1,11 @@
 package com.example.waqas.balance.controller;
 
+import com.example.waqas.balance.dto.InvoiceDTO;
 import com.example.waqas.balance.exceptions.InvoiceNotFoundException;
-import com.example.waqas.balance.model.CurrentBalance;
-import com.example.waqas.balance.model.InvoiceEuro;
-import com.example.waqas.balance.model.InvoiceUsd;
+import com.example.waqas.balance.exceptions.WrongStatusException;
+import com.example.waqas.balance.model.Invoice;
 import com.example.waqas.balance.service.InvoiceService;
-import com.example.waqas.balance.utility.Utilities;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,85 +20,76 @@ public class InvoiceController {
     @Autowired
     private InvoiceService invoiceService;
 
-    @PostMapping("/addUsd")
-    public ResponseEntity<Object> invoiceInUSD(@RequestBody InvoiceUsd invoiceUsd){
-       return new ResponseEntity<>(invoiceService.addInvoiceUsd(invoiceUsd),HttpStatus.CREATED);
-    }
-
-    @PostMapping("/addEuro")
-    public ResponseEntity<Object> invoiceEURO(@RequestBody InvoiceEuro invoiceEuro){
-        return new ResponseEntity<>(invoiceService.addInvoiceEuro(invoiceEuro),HttpStatus.CREATED);
-    }
-
-    @GetMapping("/onlyUSDBalance")
-    public ResponseEntity<Double> getUsdBalanceOnly(){
-        return ResponseEntity.ok(invoiceService.getUsdBalanceOnly());
-
-    }
-
-    @GetMapping("/onlyEUROBalance")
-    public ResponseEntity<Double> getEuroBalanceOnly(){
-        return ResponseEntity.ok(invoiceService.getEuroBalanceOnly());
-    }
-
-    @DeleteMapping("/deleteUSDInvoice/{id}")
-    public ResponseEntity<String> removeInvoiceUSD(@PathVariable("id") Integer invoiceUsdId){
-        try{
-            invoiceService.removeInvoiceUsdById(invoiceUsdId);
-            return ResponseEntity.ok("invoice in usd deleted successfully!");
-        } catch (InvoiceNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    @PostMapping("/addInvoice")
+    public ResponseEntity<Object> addInvoice(@Valid @RequestBody InvoiceDTO invoiceDTO){
+        try {
+            return new ResponseEntity<>(invoiceService.addInvoice(invoiceDTO), HttpStatus.CREATED);
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
+
     }
 
-    @DeleteMapping("/deleteEUROInvoice/{id}")
-    public ResponseEntity<String> removeInvoiceEURO(@PathVariable("id") Integer invoiceEuroId){
-        try{
-            invoiceService.removeInvoiceEuroById(invoiceEuroId);
-            return ResponseEntity.ok("invoice in euro deleted successfully!");
+    @GetMapping("/get/{id}")
+    public ResponseEntity<Object> getInvoiceById(@PathVariable("id") Integer id){
+        try {
+            return ResponseEntity.ok(invoiceService.getInvoiceById(id));
         } catch (InvoiceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        } catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 
-    @GetMapping("/totalOfAllCurrenciesInUSD/{currentEuroRate}")
-    public ResponseEntity<Double> getSumOfAllCurrenciesInUSD(@PathVariable("currentEuroRate") Double currentEuroToDollarPrice){
-        //this API returns the sum of all the currencies in USD
-        return ResponseEntity.ok(invoiceService.getSumOfAllCurrenciesInUsd(currentEuroToDollarPrice));
+    @GetMapping("/paidInvoices")
+    public ResponseEntity<Object> getAllPaidInvoices(){
+        List<Invoice> allInvoices = invoiceService.getAllPaidInvoices();
+        if(allInvoices.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No invoice found in database!");
+        }else{
+            return ResponseEntity.ok(allInvoices);
+        }
+
     }
 
-    @GetMapping("/bothCurrenciesData")
-    public ResponseEntity<CurrentBalance> getBalanceInBothCurrencies(){
-        return ResponseEntity.ok(invoiceService.getAllCurrenciesBalance());
+    @GetMapping("/allInvoices")
+    public ResponseEntity<Object> getAllInvoices(){
+        List<Invoice> allInvoices = invoiceService.getAllInvoices();
+        if(allInvoices.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No invoice found in database!");
+        }else{
+            return ResponseEntity.ok(allInvoices);
+        }
+
     }
 
-    @GetMapping("/allEuroInvoices")
-    public ResponseEntity<List<InvoiceEuro>> getAllEuroInvoices(){
-        return ResponseEntity.ok(invoiceService.getAllEuroInvoices());
+    @DeleteMapping("/removeInvoice/{id}")
+    public ResponseEntity<String> removeInvoiceById(@PathVariable("id") Integer invoiceId){
+        try {
+            invoiceService.removeInvoiceById(invoiceId);
+            return ResponseEntity.ok().body("Invoice with id "+invoiceId+" deleted successfully");
+        } catch (InvoiceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error occured deleting invoice");
+        }
     }
 
-    @GetMapping("/allUsdInvoices")
-    public ResponseEntity<List<InvoiceUsd>> getAllUsdInvoices(){
-        return ResponseEntity.ok(invoiceService.getAllUsdInvoices());
+    @DeleteMapping("/resetInvoices")
+    public ResponseEntity<String> resetInvoices(){
+        invoiceService.removeAllInvoices();
+        return ResponseEntity.ok("deleted all invoices successfully");
     }
 
-    @DeleteMapping("/resetUSDInvoices")
-    public ResponseEntity<String> resetUsdInvoices(){
-        invoiceService.deleteAllUsdInvoices();
-        //update the csv file for invoices in USD and in EURO
-        Utilities.writeAllInvoicesInFile(invoiceService.getAllUsdInvoices(),invoiceService.getAllEuroInvoices());
-        return ResponseEntity.ok("deleted all USD invoices successfully");
+    @PutMapping("/updateStatus/{id}/{status}")
+    public ResponseEntity<Object> changeInvoiceStatus(@PathVariable("id") Integer invoiceId,@PathVariable("status") String paymentStatus){
+                 try {
+                     Invoice updatedInvoice = invoiceService.changeInvoicePaymentStatus(invoiceId,paymentStatus);
+                     return ResponseEntity.ok(updatedInvoice);
+                 } catch (WrongStatusException e) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+                 } catch (InvoiceNotFoundException e) {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+                 }
+
     }
 
-    @DeleteMapping("/resetEUROInvoices")
-    public ResponseEntity<String> resetEuroInvoices(){
-        invoiceService.deleteAllEuroInvoices();
-        //update the csv file for invoices in USD and in EURO
-        Utilities.writeAllInvoicesInFile(invoiceService.getAllUsdInvoices(),invoiceService.getAllEuroInvoices());
-        return ResponseEntity.ok("deleted all EURO invoices successfully");
-    }
 }
