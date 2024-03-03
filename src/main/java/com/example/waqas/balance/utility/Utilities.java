@@ -31,19 +31,8 @@ public class Utilities {
                 writer.append(",");
                 writer.append(invoice.getPaid());                  //PAID
                 writer.append("\n");
-
             }
-            writer.append("\n");
-            writer.append("\n");
-            writer.append("\n");
 
-            writer.append("BALANCE");
-            writer.append("\n");
-            writer.append("USD,EURO\n");
-            writer.append(String.valueOf(sumOfAllCurrencies.getUsd()));
-            writer.append(",");
-            writer.append(String.valueOf(sumOfAllCurrencies.getEuro()));
-            writer.append("\n");
 
             System.out.println("Invoices has been written to " + fileName);
         } catch (IOException e) {
