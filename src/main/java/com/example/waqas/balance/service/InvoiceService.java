@@ -64,7 +64,7 @@ public class InvoiceService {
             com.example.waqas.balance.model.InvoiceOld invoiceOld = InvoiceMapper.mapInvoiceToInvoiceOld(invoiceSearch.get());
             log.info("invoiceOld to be persisted : {}",invoiceOld);
             //before removing and adding into old invoices , we must change its payment status to YES i.e we only remove and add paid invoices into old invoices aka invoices history
-            invoiceOld.setPaid("YES");
+            invoiceOld.setPaid(PaymentStatus.YES.toString());
             invoiceOldService.addInvoiceOld(invoiceOld);
         }
         else {
