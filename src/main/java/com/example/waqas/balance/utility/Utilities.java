@@ -14,8 +14,9 @@ public class Utilities {
 
 
     public static void writeOrUpdateInvoicesFile(List<Invoice> invoicesList, AllCurrencies sumOfAllCurrencies){
-        // List<InvoicePaid> paidInvoicesList = invoicePaidService.getAllPaidInvoices();
+        log.info("Utilities.writeOrUpdateInvoicesFile() method is called...");
         String fileName = "invoices.csv";
+        log.info("starting writing invoices.csv file...");
         try (FileWriter writer = new FileWriter(fileName)) {
             // Write header
             writer.append("ID,NAME,AMOUNT,CURRENCY,PAID,DATE\n");
@@ -37,27 +38,31 @@ public class Utilities {
 
             }
 
-            writer.append("\n");
-            writer.append("\n");
-            writer.append("\n");
+            Utilities.writeAllCurrenciesIntoFile(sumOfAllCurrencies);
 
-            writer.append("BALANCE");
-            writer.append("\n");
+            log.info("Invoices have been written to " + fileName);
+        } catch (IOException e) {
+            log.error("Error occurred while writing CSV file : "+fileName+" message :" + e.getMessage());
+        }
+    }
+
+    public static void  writeAllCurrenciesIntoFile(AllCurrencies sumOfAllCurrencies) {
+        log.info("Utilities.writeAllCurrenciesIntoFile() method is called...");
+        String fileName = "AllCurrencies.csv";
+        log.info("starting to write CSV file : {}",fileName);
+        try (FileWriter writer = new FileWriter(fileName)) {
             writer.append("USD,EURO\n");
             writer.append(String.valueOf(sumOfAllCurrencies.getUsd()));
             writer.append(",");
             writer.append(String.valueOf(sumOfAllCurrencies.getEuro()));
             writer.append("\n");
-    writer.close();
 
-            System.out.println("Invoices has been written to " + fileName);
+            log.info("Invoices have been written to " + fileName);
         } catch (IOException e) {
-            System.err.println("Error occurred while writing CSV: " + e.getMessage());
+            log.error("Error occurred while writing CSV file : "+fileName+" message :" + e.getMessage());
         }
     }
-
-
-    public static void writeOldInvoicesFile(List<InvoiceOld> oldInvoicesList){
+        public static void writeOldInvoicesFile(List<InvoiceOld> oldInvoicesList){
         String fileName = "oldInvoices.csv";
         try (FileWriter writer = new FileWriter(fileName)) {
             // Write header
@@ -80,11 +85,9 @@ public class Utilities {
 
             }
 
-            writer.close();
-
-            System.out.println("Invoices has been written to " + fileName);
+           log.info("Invoices has been written to " + fileName);
         } catch (IOException e) {
-            System.err.println("Error occurred while writing CSV: " + e.getMessage());
+            log.error("Error occurred while writing CSV file : "+fileName+" message :" + e.getMessage());
         }
     }
 
