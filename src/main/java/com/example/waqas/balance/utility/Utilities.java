@@ -15,7 +15,7 @@ public class Utilities {
         String fileName = "finalInvoices.csv";
         try (FileWriter writer = new FileWriter(fileName)) {
             // Write header
-            writer.append("ID,NAME,AMOUNT,CURRENCY,DATE,PAID\n");
+            writer.append("ID,NAME,AMOUNT,CURRENCY,PAID,DATE\n");
 
             // Write InvoiceUsd data
             for (Invoice invoice : invoicesList) {
@@ -27,12 +27,12 @@ public class Utilities {
                 writer.append(",");
                 writer.append(invoice.getCurrency());              //CURRENCY
                 writer.append(",");
-                writer.append(invoice.getDate());                  //DATE
-                writer.append(",");
                 writer.append(invoice.getPaid());                  //PAID
+                writer.append(",");
+                writer.append(invoice.getDate());                  //DATE
                 writer.append("\n");
             }
-
+    writer.close();
 
             System.out.println("Invoices has been written to " + fileName);
         } catch (IOException e) {
