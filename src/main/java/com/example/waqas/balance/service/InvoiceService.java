@@ -2,24 +2,30 @@ package com.example.waqas.balance.service;
 
 import com.example.waqas.balance.dto.InvoiceDTO;
 import com.example.waqas.balance.exceptions.InvoiceNotFoundException;
+import com.example.waqas.balance.exceptions.InvoiceOldAddingException;
 import com.example.waqas.balance.exceptions.WrongStatusException;
 import com.example.waqas.balance.mapper.InvoiceMapper;
 import com.example.waqas.balance.model.AllCurrencies;
 import com.example.waqas.balance.model.Invoice;
+import com.example.waqas.balance.model.InvoiceOld;
 import com.example.waqas.balance.repository.InvoiceRepository;
 import com.example.waqas.balance.utility.PaymentStatus;
-import com.example.waqas.balance.utility.Utilities;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class InvoiceService {
 
     @Autowired
     private InvoiceRepository invoiceRepository;
+
+    @Autowired
+    private InvoiceOldService invoiceOldService;
 
     public Invoice addInvoice(InvoiceDTO invoiceDTO){
         Invoice invoice = InvoiceMapper.convertInvoiceDTOintoInvoice(invoiceDTO);
@@ -46,9 +52,20 @@ public class InvoiceService {
     public List<Invoice> getAllInvoices(){
         return invoiceRepository.findAll();
     }
-    public void removeInvoiceById(Integer id) throws InvoiceNotFoundException {
-        if(invoiceRepository.findById(id).isPresent()){
+
+    public void removeInvoiceById(Integer id) throws InvoiceNotFoundException, InvoiceOldAddingException {
+        log.info("InvoiceService.removeInvoiceById() method is called...");
+        log.info("ID passed : {}",id);
+        Optional<Invoice> invoiceSearch = invoiceRepository.findById(id);
+        if(invoiceSearch.isPresent()){
+            log.info("invoice found : {}",invoiceSearch.get());
             invoiceRepository.deleteById(id);
+            log.info("deleted invoice successfully,Now adding it to the history of invoices");
+            com.example.waqas.balance.model.InvoiceOld invoiceOld = InvoiceMapper.mapInvoiceToInvoiceOld(invoiceSearch.get());
+            log.info("invoiceOld to be persisted : {}",invoiceOld);
+            //before removing and adding into old invoices , we must change its payment status to YES i.e we only remove and add paid invoices into old invoices aka invoices history
+            invoiceOld.setPaid("YES");
+            invoiceOldService.addInvoiceOld(invoiceOld);
         }
         else {
             throw new InvoiceNotFoundException("Invoice does not exist!");

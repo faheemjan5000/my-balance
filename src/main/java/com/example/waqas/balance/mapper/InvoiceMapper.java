@@ -2,6 +2,7 @@ package com.example.waqas.balance.mapper;
 
 import com.example.waqas.balance.dto.InvoiceDTO;
 import com.example.waqas.balance.model.Invoice;
+import com.example.waqas.balance.model.InvoiceOld;
 import com.example.waqas.balance.utility.Utilities;
 
 public class InvoiceMapper {
@@ -21,4 +22,16 @@ public class InvoiceMapper {
         return invoice;
     }
 
+    public static InvoiceOld mapInvoiceToInvoiceOld(Invoice invoice) {
+        InvoiceOld invoiceOld = new InvoiceOld();
+
+        invoiceOld.setId(invoice.getId());
+        invoiceOld.setAmount(invoice.getAmount());
+        invoiceOld.setInvoicerName(invoice.getInvoicerName());
+        invoiceOld.setDate(invoice.getDate());
+        invoiceOld.setCurrency(invoice.getCurrency());
+        invoiceOld.setPaid(invoice.getPaid());
+
+        return invoiceOld;
+    }
 }
