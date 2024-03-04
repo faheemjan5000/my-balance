@@ -132,19 +132,16 @@ public class InvoiceController {
     public ResponseEntity<String> writeInvoicesIntoCSV(){
         log.info("InvoiceController.writeInvoicesIntoCSV() method is called...");
         List<Invoice> invoiceList = invoiceService.getAllInvoices();
-        if(invoiceList.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No content found in database!");
-        } else {
             Utilities.writeOrUpdateInvoicesFile(invoiceList, invoiceService.getSumOfAllCurrencies());
             return ResponseEntity.status(HttpStatus.CREATED).body("Invoices written to the file");
-        }
+
     }
 
     @GetMapping("/writeOldInvoices")
     public ResponseEntity<Object> writeOldInvoicesIntoCSV(){
         log.info("InvoiceController.writeOldInvoicesIntoCSV() method is called...");
         List<InvoiceOld> oldInvoicesList = invoiceOldService.getAllOldInvoices();
-        if(oldInvoicesList.size()==0){
+        if(oldInvoicesList.isEmpty()){
             log.warn("No old invoice exist!");
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No content found in database!");
         }else {
