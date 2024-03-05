@@ -66,7 +66,7 @@ public class Utilities {
         String fileName = "oldInvoices.csv";
         try (FileWriter writer = new FileWriter(fileName)) {
             // Write header
-            writer.append("ID,NAME,AMOUNT,AMOUNT_IN_EURO,CURRENCY,PAID,DATE\n");
+            writer.append("ID,NAME,AMOUNT,CURRENCY,AMOUNT_IN_EURO,PAID,DATE\n");
 
             // Write InvoiceUsd data
             for (InvoiceOld invoiceOld : oldInvoicesList) {
@@ -76,9 +76,9 @@ public class Utilities {
                 writer.append(",");
                 writer.append(String.valueOf(invoiceOld.getAmount()));//AMOUNT
                 writer.append(",");
-                writer.append(String.valueOf(invoiceOld.getAmountInEuro()));//AMOUNT_IN_EURO
-                writer.append(",");
                 writer.append(invoiceOld.getCurrency());              //CURRENCY
+                writer.append(",");
+                writer.append(String.valueOf(invoiceOld.getAmountInEuro()));//AMOUNT_IN_EURO
                 writer.append(",");
                 writer.append(invoiceOld.getPaid());                  //PAID
                 writer.append(",");
