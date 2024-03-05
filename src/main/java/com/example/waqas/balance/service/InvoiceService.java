@@ -53,7 +53,7 @@ public class InvoiceService {
         return invoiceRepository.findAll();
     }
 
-    public void removeInvoiceById(Integer id) throws InvoiceNotFoundException, InvoiceOldAddingException {
+    public void removeInvoiceById(Integer id,double amountInEuro) throws InvoiceNotFoundException, InvoiceOldAddingException {
         log.info("InvoiceService.removeInvoiceById() method is called...");
         log.info("ID passed : {}",id);
         Optional<Invoice> invoiceSearch = invoiceRepository.findById(id);
@@ -61,7 +61,7 @@ public class InvoiceService {
             log.info("invoice found : {}",invoiceSearch.get());
             invoiceRepository.deleteById(id);
             log.info("deleted invoice successfully,Now adding it to the history of invoices");
-            com.example.waqas.balance.model.InvoiceOld invoiceOld = InvoiceMapper.mapInvoiceToInvoiceOld(invoiceSearch.get());
+            InvoiceOld invoiceOld = InvoiceMapper.mapInvoiceToInvoiceOld(invoiceSearch.get(),amountInEuro);
             log.info("invoiceOld to be persisted : {}",invoiceOld);
             //before removing and adding into old invoices , we must change its payment status to YES i.e we only remove and add paid invoices into old invoices aka invoices history
             invoiceOld.setPaid(PaymentStatus.YES.toString());

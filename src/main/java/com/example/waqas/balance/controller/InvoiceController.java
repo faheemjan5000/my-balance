@@ -75,11 +75,11 @@ public class InvoiceController {
 
     }
 
-    @DeleteMapping("/removeInvoice/{id}")
-    public ResponseEntity<String> removeInvoiceById(@PathVariable("id") Integer invoiceId){
+    @DeleteMapping("/removeInvoice/{id}/{amountInEuro}")
+    public ResponseEntity<String> removeInvoiceById(@PathVariable("id") Integer invoiceId,@PathVariable("amountInEuro") double amountConvertedInEuro){
         log.info("InvoiceController.removeInvoiceById() method is called...");
         try {
-            invoiceService.removeInvoiceById(invoiceId);
+            invoiceService.removeInvoiceById(invoiceId,amountConvertedInEuro);
             return ResponseEntity.ok().body("Invoice with id "+invoiceId+" deleted successfully");
         } catch (InvoiceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());

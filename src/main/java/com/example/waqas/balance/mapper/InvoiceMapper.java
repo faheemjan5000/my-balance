@@ -22,11 +22,12 @@ public class InvoiceMapper {
         return invoice;
     }
 
-    public static InvoiceOld mapInvoiceToInvoiceOld(Invoice invoice) {
+    public static InvoiceOld mapInvoiceToInvoiceOld(Invoice invoice,double amountInEuro) {
         InvoiceOld invoiceOld = new InvoiceOld();
 
         invoiceOld.setId(invoice.getId());
         invoiceOld.setAmount(invoice.getAmount());
+        invoiceOld.setAmountInEuro(amountInEuro);
         invoiceOld.setInvoicerName(invoice.getInvoicerName());
         invoiceOld.setDate(invoice.getDate());
         invoiceOld.setCurrency(invoice.getCurrency());
