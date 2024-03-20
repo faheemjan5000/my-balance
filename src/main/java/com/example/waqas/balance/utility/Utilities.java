@@ -1,6 +1,6 @@
 package com.example.waqas.balance.utility;
 
-import com.example.waqas.balance.model.AllCurrencies;
+import com.example.waqas.balance.model.Currencies;
 import com.example.waqas.balance.model.Invoice;
 import com.example.waqas.balance.model.InvoiceOld;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +13,7 @@ import java.util.List;
 public class Utilities {
 
 
-    public static void writeOrUpdateInvoicesFile(List<Invoice> invoicesList, AllCurrencies sumOfAllCurrencies){
+    public static void writeOrUpdateInvoicesFile(List<Invoice> invoicesList, Currencies sumOfCurrencies){
         log.info("Utilities.writeOrUpdateInvoicesFile() method is called...");
         String fileName = "invoices.csv";
         log.info("starting writing invoices.csv file...");
@@ -38,7 +38,7 @@ public class Utilities {
 
             }
 
-            Utilities.writeAllCurrenciesIntoFile(sumOfAllCurrencies);
+            Utilities.writeAllCurrenciesIntoFile(sumOfCurrencies);
 
             log.info("Invoices have been written to " + fileName);
         } catch (IOException e) {
@@ -46,15 +46,15 @@ public class Utilities {
         }
     }
 
-    public static void  writeAllCurrenciesIntoFile(AllCurrencies sumOfAllCurrencies) {
+    public static void  writeAllCurrenciesIntoFile(Currencies sumOfCurrencies) {
         log.info("Utilities.writeAllCurrenciesIntoFile() method is called...");
         String fileName = "AllCurrencies.csv";
         log.info("starting to write CSV file : {}",fileName);
         try (FileWriter writer = new FileWriter(fileName)) {
             writer.append("USD,EURO\n");
-            writer.append(String.valueOf(sumOfAllCurrencies.getUsd()));
+            writer.append(String.valueOf(sumOfCurrencies.getUsd()));
             writer.append(",");
-            writer.append(String.valueOf(sumOfAllCurrencies.getEuro()));
+            writer.append(String.valueOf(sumOfCurrencies.getEuro()));
             writer.append("\n");
 
             log.info("Invoices have been written to " + fileName);

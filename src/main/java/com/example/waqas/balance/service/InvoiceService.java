@@ -5,7 +5,7 @@ import com.example.waqas.balance.exceptions.InvoiceNotFoundException;
 import com.example.waqas.balance.exceptions.InvoiceOldAddingException;
 import com.example.waqas.balance.exceptions.WrongStatusException;
 import com.example.waqas.balance.mapper.InvoiceMapper;
-import com.example.waqas.balance.model.AllCurrencies;
+import com.example.waqas.balance.model.Currencies;
 import com.example.waqas.balance.model.Invoice;
 import com.example.waqas.balance.model.InvoiceOld;
 import com.example.waqas.balance.repository.InvoiceRepository;
@@ -93,7 +93,7 @@ public class InvoiceService {
        }
     }
 
-    public AllCurrencies getSumOfAllCurrencies(){
+    public Currencies getSumOfAllCurrencies(){
         List<Invoice> allInvoices = this.getAllInvoices();
         double sumUsd = 0.00;
         double sumEuro = 0.00;
@@ -111,10 +111,10 @@ public class InvoiceService {
             sumEuro = sumEuro + euroInvoice.getAmount();
         }
 
-        AllCurrencies allCurrencies = new AllCurrencies();
-        allCurrencies.setEuro(sumEuro);
-        allCurrencies.setUsd(sumUsd);
+        Currencies currencies = new Currencies();
+        currencies.setEuro(sumEuro);
+        currencies.setUsd(sumUsd);
 
-        return allCurrencies;
+        return currencies;
     }
 }

@@ -4,7 +4,7 @@ import com.example.waqas.balance.dto.InvoiceDTO;
 import com.example.waqas.balance.exceptions.InvoiceNotFoundException;
 import com.example.waqas.balance.exceptions.InvoiceOldNotFoundException;
 import com.example.waqas.balance.exceptions.WrongStatusException;
-import com.example.waqas.balance.model.AllCurrencies;
+import com.example.waqas.balance.model.Currencies;
 import com.example.waqas.balance.model.Invoice;
 import com.example.waqas.balance.model.InvoiceOld;
 import com.example.waqas.balance.service.InvoiceOldService;
@@ -123,7 +123,7 @@ public class InvoiceController {
     }
 
     @GetMapping("/allCurrencies")
-    public ResponseEntity<AllCurrencies> getAllCurrencies(){
+    public ResponseEntity<Currencies> getAllCurrencies(){
         log.info("InvoiceController.getAllCurrencies() method is called...");
         return ResponseEntity.ok(invoiceService.getSumOfAllCurrencies());
     }
